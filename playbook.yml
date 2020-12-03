@@ -1,0 +1,101 @@
+---
+
+- name: ASA
+  hosts: asa
+  gather_facts: false
+  connection: network_cli
+
+  tasks:
+    - name: ASA CONFIG
+      asa_command:
+        commands: show run
+      register: output
+
+    - name: COPY ASA CONFIG
+      copy:
+        content: "{{ output.stdout[0] }}"
+        dest: "/home/ansible/ncm-ansible/asa/show_run_{{ inventory_hostname }}.txt"
+
+    - name: Remove Lines ASA
+      lineinfile:
+        path: /home/ansible/ncm-ansible/asa/show_run_{{ inventory_hostname }}.txt
+        regexp: 'Cryptochecksum:*' 
+        state: absent
+
+- name: NEXUS
+  hosts: nexus
+  gather_facts: false
+  connection: network_cli
+
+  tasks:
+    - name: NEXUS CONFIG
+      nxos_command:
+        commands: show run
+      register: output_nxos
+
+    - name: SAVE NXOS CONFIG
+      copy:
+        content: "{{ output_nxos.stdout[0] }}"
+        dest: "/home/ansible/ncm-ansible/nxos/show_run_{{ inventory_hostname }}.txt"
+
+    - name: Remove Lines NEXUS
+      lineinfile:
+        path: /home/ansible/ncm-ansible/nxos/show_run_{{ inventory_hostname }}.txt
+        regexp: '!Time *' 
+        state: absent
+
+- name: IOS
+  hosts: ios
+  gather_facts: false
+  connection: network_cli
+
+  tasks:
+    - name: IOS CONFIG
+      ios_command:
+        commands: show run
+      register: output_ios
+
+    - name: SAVE IOS CONFIG
+      copy:
+        content: "{{ output_ios.stdout[0] }}"
+        dest: "/home/ansible/ncm-ansible/ios/show_run_{{ inventory_hostname }}.txt"
+
+    - name: Remove Lines IOS
+      lineinfile:
+        path: /home/ansible/ncm-ansible/ios/show_run_{{ inventory_hostname }}.txt
+        regexp: 'Current *'
+        state: absent
+
+    - name: Remove Lines IOS
+      lineinfile:
+        path: /home/ansible/ncm-ansible/ios/show_run_{{ inventory_hostname }}.txt
+        regexp: 'ntp clock-period *'
+        state: absent
+
+    - name: Remove Lines IOS
+      lineinfile:
+        path: /home/ansible/ncm-ansible/ios/show_run_{{ inventory_hostname }}.txt
+        regexp: '! NVRAM config *'
+        state: absent
+
+- name: GIT SECTION
+  hosts: localhost
+
+  tasks:
+
+    - name: print time
+      command: date
+      register: time
+      changed_when: false
+      delegate_to: localhost
+      run_once: yes
+
+    - name: git commands
+      shell: |
+        git add .
+        git commit -m "Device Backup on {{time.stdout}} "
+        git push
+      args:
+        chdir: /home/ansible/ncm-ansible
+      delegate_to: localhost
+      run_once: yes
