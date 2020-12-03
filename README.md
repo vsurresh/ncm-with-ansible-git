@@ -16,3 +16,5 @@ You can configure cronjob to run the playbook everydat at specific time.
 
 
 For more info: https://packetswitch.co.uk/ncm-ansible-git/
+
+![](https://packetswitch.s3-eu-west-1.amazonaws.com/ansible-git/asa-gitlab-diff.PNG)
