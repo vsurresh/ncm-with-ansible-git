@@ -1,7 +1,7 @@
 ---
 
 ansible_network_os: asa
-ansible_user: ansible-network
+ansible_user: ansible
 ansible_password: "{{ vault_ansible_password }}"
 ansible_become: yes
 ansible_become_password: "{{ vault_ansible_become_password }}"
