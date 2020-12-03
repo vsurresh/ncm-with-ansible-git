@@ -23,7 +23,7 @@
         state: absent
 
 - name: NEXUS
-  hosts: nexus
+  hosts: nxos
   gather_facts: false
   connection: network_cli
 
